@@ -36,7 +36,11 @@ def plot_foraging_lifetime(lifetime_df, plot_list=["side_bias", "lickspout_posit
 
     # Plot each element
     for index, plot in enumerate(plot_list):
-        plot_foraging_lifetime_inner(ax[index+1], plot, df)
+        if isinstance(plot, list):
+            for inner_plot in plot:
+                plot_foraging_lifetime_inner(ax[index+1], inner_plot, df)
+        else:
+            plot_foraging_lifetime_inner(ax[index+1], plot, df)
 
     # Add session breaks to each axis
     session_breaks = list(df.query("trial == 0")["lifetime_trial"].values - 0.5) + [
