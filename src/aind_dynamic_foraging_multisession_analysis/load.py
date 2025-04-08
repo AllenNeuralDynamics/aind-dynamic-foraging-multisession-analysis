@@ -11,11 +11,12 @@ import aind_dynamic_foraging_basic_analysis.licks.annotation as a
 
 import aind_dynamic_foraging_multisession_analysis.load as load
 NWB_FILES = glob.glob(DATA_DIR + 'behavior_<mouse_id>_**.nwb')
-nwbs, df = load.make_multisession_trials_df(NWB_LIST)
+nwbs, df = load.make_multisession_trials_df(NWB_FILES)
 
 """
 
-
+# TODO, move this?
+# TODO, compute bias?
 def add_side_bias(nwb):
     if 'side_bias' in nwb.df_trials:
         return nwb.df_trials
@@ -36,7 +37,9 @@ def make_multisession_trials_df(nwb_list):
     for n in nwb_list:
         try:
             nwb = nu.load_nwb_from_filename(n)
-            nwb.df_trials = nu.create_df_trials(nwb)
+            nwb.df_trials = nu.create_df_trials(nwb,verbose=False)
+            nwb.df_events = nu.create_events_df(nwb,verbose=False)
+            nwb.df_licks = a.annotate_licks(nwb)
             nwb.df_trials = tm.compute_trial_metrics(nwb)
             nwb.df_trials = tm.add_intertrial_licking(nwb)
             nwb.df_trials = add_side_bias(nwb)
