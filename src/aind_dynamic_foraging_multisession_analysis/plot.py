@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from datetime import datetime,timedelta
 import matplotlib.pyplot as plt
 
 from aind_dynamic_foraging_data_utils import nwb_utils as nu
@@ -16,7 +17,7 @@ make_multisession_trials_df should check for the existence in the agg dir first
 Make specification for multisession trials df
 Make some capsule to generate them, and make data assets, what metadata?
 Add axis for licking/rewards, reward probability
-add some indicator for weekends
+add some indicator for weekends (or just multi-day break)
 Investigate why some sessions crash on bias computation
 Add some indicator for missing session
 plot_foraging_behavior should be re-factored to use the same code as the plotting library
@@ -47,9 +48,13 @@ def plot_foraging_lifetime(lifetime_df, plot_list=["side_bias", "lickspout_posit
     session_breaks = list(df.query("trial == 0")["lifetime_trial"].values - 0.5) + [
         df["lifetime_trial"].values[-1]
     ]
+    multiday_breaks = find_multiday_breaks(df)
     for a in ax:
-        for x in session_breaks:
-            a.axvline(x, color="gray", alpha=0.25, linestyle="--")
+        for index, x in enumerate(session_breaks):
+            if multiday_breaks[index]:
+                a.axvline(x,color='gray',alpha=1,linestyle="--")
+            else:
+                a.axvline(x, color="gray", alpha=0.25, linestyle="--")
 
     # Determine xtick positions and labels
     ticks = list(df.query("trial == 0")["lifetime_trial"].values) + [
@@ -111,7 +116,6 @@ def plot_foraging_behavior(ax, df):
     autowater_ignored = autowater_offered & ignored
     unrewarded_trials = ~reward_history & ~ignored & ~autowater_offered
 
-
     # Mark unrewarded trials
     xx = np.nonzero(unrewarded_trials)[0] + 1
     yy_temp = choice_history[unrewarded_trials]
@@ -146,7 +150,7 @@ def plot_foraging_behavior(ax, df):
     xx_left = xx[yy_temp < 0.5]
     ax.vlines(
         xx_right,
-        yy_right,
+        yy_right + 0.05,
         yy_right + 0.1,
         alpha=1,
         linewidth=1,
@@ -154,17 +158,33 @@ def plot_foraging_behavior(ax, df):
         label="Rewarded choices",
     )
     ax.vlines(
+        xx_right,
+        yy_right + 0,
+        yy_right + 0.05,
+        alpha=1,
+        linewidth=1,
+        color="gray",
+    )
+    ax.vlines(
         xx_left,
         yy_left - 0.1,
-        yy_left,
+        yy_left - 0.05,
         alpha=1,
         linewidth=1,
         color="black",
     )
+    ax.vlines(
+        xx_left,
+        yy_left - 0.05,
+        yy_left,
+        alpha=1,
+        linewidth=1,
+        color="gray",
+    )
 
     # Ignored trials
     xx = np.nonzero(ignored & ~autowater_ignored)[0] + 1
-    yy = [1] * sum(ignored & ~autowater_ignored)
+    yy = [.99] * sum(ignored & ~autowater_ignored)
     ax.plot(
         *(xx, yy) ,
         "x",
@@ -201,7 +221,7 @@ def plot_foraging_behavior(ax, df):
     
     # Also highlight the autowater offered but still ignored
     xx = np.nonzero(autowater_ignored)[0] + 1
-    yy = [1] * sum(autowater_ignored)
+    yy = [1.01] * sum(autowater_ignored)
     ax.plot(
         *(xx, yy) ,
         "x",
@@ -211,8 +231,8 @@ def plot_foraging_behavior(ax, df):
         label="Autowater ignored",
     )
     
-    ax.set_yticks([.9,1,1.1])
-    ax.set_yticklabels(['Left','Ignored','Right'])
+    ax.set_yticks([.875,.925,1,1.075,1.125])
+    ax.set_yticklabels(['L Reward','L Choice','Ignored','R Choice','R Reward'])
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
@@ -226,14 +246,14 @@ def plot_foraging_lifetime_inner(ax, plot, df):
     # otherwise we just plot the metric
     if plot == "side_bias":
         ax.plot(df["lifetime_trial"], df["side_bias"], label="bias")
-        lower = [x[0] if not np.isnan(x) else np.nan for x in df['side_bias_confidence_interval']]
-        upper = [x[1] if not np.isnan(x) else np.nan for x in df['side_bias_confidence_interval']]
+        lower = [x[0] for x in df['side_bias_confidence_interval']]
+        upper = [x[1] for x in df['side_bias_confidence_interval']]
         ax.fill_between(
-            np.arange(0,df), 
+            np.arange(0,len(df)), 
             lower, 
             upper, 
             color='gray', 
-            alpha=.5
+            alpha=.25
             )
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
         ax.set_ylim(-1, 1)
@@ -281,7 +301,21 @@ def plot_foraging_lifetime_inner(ax, plot, df):
         ax.set_ylabel("$\Delta$ lickspout")
     elif plot in df:
         ax.plot(df["lifetime_trial"], df[plot], label=plot)
+        ax.axhline(0, linestyle="--", color="k", alpha=0.25)
     else:
         print("Unknown plot element: {}".format(plot))
 
     ax.legend(loc="upper left")
+
+
+def find_multiday_breaks(df):
+    '''
+       Adds a column that annotates if the gap between sessions is greater than a day 
+    '''
+    dates = [datetime.strptime(x.split('_')[1],'%Y-%m-%d') for x in np.sort(df['ses_idx'].unique())] 
+    time_delta = []
+    for dex, val in enumerate(dates):
+        time_delta.append((dates[dex]-dates[dex-1])>timedelta(hours=24))
+    time_delta.append(False)
+
+    return time_delta
