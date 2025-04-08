@@ -11,16 +11,10 @@ import aind_dynamic_foraging_basic_analysis.metrics.trial_metrics as tm
 # TODO
 - Should bias be cleaned up in DATA UTILS, or here?
 add vertical scroll bar when there are lots of metrics?
-add trial metrics to multisession trials
 maybe avoid using the term "lifetime" since we aren't ensuring that its actually the lifetime
-make_multisession_trials_df should check for the existence in the agg dir first
 Make specification for multisession trials df
 Make some capsule to generate them, and make data assets, what metadata?
-Add axis for licking/rewards, reward probability
-add some indicator for weekends (or just multi-day break)
 Investigate why some sessions crash on bias computation
-Add some indicator for missing session
-plot_foraging_behavior should be re-factored to use the same code as the plotting library
 """
 
 def plot_foraging_lifetime(lifetime_df, plot_list=["side_bias", "lickspout_position"]):
@@ -108,6 +102,7 @@ def plot_foraging_behavior(ax, df):
     reward_history = df["earned_reward"].values
     p_reward = [df["reward_probabilityL"], df["reward_probabilityR"]]
     autowater_offered=df[["auto_waterL", "auto_waterR"]].any(axis=1)
+    manual_water = df['extra_reward'].values 
 
     # Compute things
     ignored = np.isnan(choice_history)
@@ -115,6 +110,8 @@ def plot_foraging_behavior(ax, df):
     autowater_collected = autowater_offered & ~ignored
     autowater_ignored = autowater_offered & ignored
     unrewarded_trials = ~reward_history & ~ignored & ~autowater_offered
+    manual_water_ignored = manual_water & ignored
+    manual_water_collected = manual_water & ~ignored
 
     # Mark unrewarded trials
     xx = np.nonzero(unrewarded_trials)[0] + 1
@@ -192,6 +189,42 @@ def plot_foraging_behavior(ax, df):
         markersize=3,
         markeredgewidth=0.5,
         label="Ignored",
+    )
+
+    # Manual water offered and collected
+    xx = np.nonzero(manual_water_collected)[0] + 1
+    yy_temp = choice_history[manual_water_collected]
+    yy_right = yy_temp[yy_temp > 0.5] + 0.05
+    xx_right = xx[yy_temp > 0.5]
+    yy_left = yy_temp[yy_temp < 0.5] - 0.05 + 1
+    xx_left = xx[yy_temp < 0.5]
+    ax.vlines(
+        xx_right,
+        yy_right,
+        yy_right + 0.1,
+        alpha=1,
+        linewidth=1,
+        color="deepskyblue",
+        label="Autowater collected",
+    )
+    ax.vlines(
+        xx_left,
+        yy_left - 0.1,
+        yy_left,
+        alpha=1,
+        linewidth=1,
+        color="deepskyblue",
+    )  
+     # Also highlight the autowater offered but still ignored
+    xx = np.nonzero(manual_water_ignored)[0] + 1
+    yy = [1.01] * sum(manual_water_ignored)
+    ax.plot(
+        *(xx, yy) ,
+        "x",
+        color="deepskyblue",
+        markersize=3,
+        markeredgewidth=0.5,
+        label="Manual water ignored",
     )
 
     # Autowater offered and collected
