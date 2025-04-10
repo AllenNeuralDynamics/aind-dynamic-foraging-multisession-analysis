@@ -8,8 +8,8 @@ import pandas as pd
 from aind_dynamic_foraging_data_utils import nwb_utils as nu
 
 
-def plot_foraging_lifetime(
-    lifetime_df, plot_list=["side_bias", "lickspout_position"]
+def plot_foraging_multisession(
+    multisession_df, plot_list=["side_bias", "lickspout_position"]
 ):
     """
     Takes a dataframe of the aggregate for all sessions from this animal
@@ -17,9 +17,9 @@ def plot_foraging_lifetime(
     """
 
     # Ensure dataframe is sorted by session then trial
-    df = lifetime_df.copy()
+    df = multisession_df.copy()
     df = df.sort_values(by=["ses_idx", "trial"])
-    df["lifetime_trial"] = df.reset_index().index
+    df["multisession_trial"] = df.reset_index().index
 
     # Set up figure
     fig, ax = plt.subplots(
@@ -36,14 +36,14 @@ def plot_foraging_lifetime(
     for index, plot in enumerate(plot_list):
         if isinstance(plot, list):
             for inner_plot in plot:
-                plot_foraging_lifetime_inner(ax[index + 1], inner_plot, df)
+                plot_foraging_multisession_inner(ax[index + 1], inner_plot, df)
         else:
-            plot_foraging_lifetime_inner(ax[index + 1], plot, df)
+            plot_foraging_multisession_inner(ax[index + 1], plot, df)
 
     # Add session breaks to each axis
     session_breaks = list(
-        df.query("trial == 0")["lifetime_trial"].values - 0.5
-    ) + [df["lifetime_trial"].values[-1]]
+        df.query("trial == 0")["multisession_trial"].values - 0.5
+    ) + [df["multisession_trial"].values[-1]]
     multiday_breaks = find_multiday_breaks(df)
     for a in ax:
         for index, x in enumerate(session_breaks):
@@ -53,8 +53,8 @@ def plot_foraging_lifetime(
                 a.axvline(x, color="gray", alpha=0.25, linestyle="--")
 
     # Determine xtick positions and labels
-    ticks = list(df.query("trial == 0")["lifetime_trial"].values) + [
-        df["lifetime_trial"].values[-1]
+    ticks = list(df.query("trial == 0")["multisession_trial"].values) + [
+        df["multisession_trial"].values[-1]
     ]
     ticks = ticks[:-1] + np.diff(ticks) / 2
     labels = [
@@ -66,7 +66,7 @@ def plot_foraging_lifetime(
     ax[-1].set_xticks(ticks, labels)
     ax[-1].set_xlabel("Session")
     ax[-1].set_xlim(
-        df["lifetime_trial"].values[0], df["lifetime_trial"].values[-1]
+        df["multisession_trial"].values[0], df["multisession_trial"].values[-1]
     )
     plt.suptitle(
         df["ses_idx"].values[0].split("_")[0]
@@ -287,7 +287,7 @@ def plot_foraging_behavior(ax, df):
     ax.spines["right"].set_visible(False)
 
 
-def plot_foraging_lifetime_inner(ax, plot, df):
+def plot_foraging_multisession_inner(ax, plot, df):
     ax.set_ylabel(plot)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -295,7 +295,7 @@ def plot_foraging_lifetime_inner(ax, plot, df):
     # some metrics have special formatting
     # otherwise we just plot the metric
     if plot == "side_bias":
-        ax.plot(df["lifetime_trial"], df["side_bias"], label="bias")
+        ax.plot(df["multisession_trial"], df["side_bias"], label="bias")
         lower = [x[0] for x in df["side_bias_confidence_interval"]]
         upper = [x[1] for x in df["side_bias_confidence_interval"]]
         ax.fill_between(
@@ -306,13 +306,13 @@ def plot_foraging_lifetime_inner(ax, plot, df):
         ax.set_ylabel("Side Bias")
     elif plot == "reward_probability":
         ax.plot(
-            df["lifetime_trial"],
+            df["multisession_trial"],
             df["reward_probabilityL"],
             color="b",
             label="L",
         )
         ax.plot(
-            df["lifetime_trial"],
+            df["multisession_trial"],
             df["reward_probabilityR"],
             color="r",
             label="R",
@@ -321,34 +321,34 @@ def plot_foraging_lifetime_inner(ax, plot, df):
     elif plot == "lickspout_position":
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
         ax.plot(
-            df["lifetime_trial"],
+            df["multisession_trial"],
             df["lickspout_position_z"] - df["lickspout_position_z"].values[0],
             "k",
             label="z",
         )
         ax.plot(
-            df["lifetime_trial"],
+            df["multisession_trial"],
             df["lickspout_position_y1"]
             - df["lickspout_position_y1"].values[0],
             "r",
             label="y1",
         )
         ax.plot(
-            df["lifetime_trial"],
+            df["multisession_trial"],
             df["lickspout_position_y2"]
             - df["lickspout_position_y2"].values[0],
             "m",
             label="y2",
         )
         ax.plot(
-            df["lifetime_trial"],
+            df["multisession_trial"],
             df["lickspout_position_x"] - df["lickspout_position_x"].values[0],
             "b",
             label="x",
         )
         ax.set_ylabel("$\Delta$ lickspout")
     elif plot in df:
-        ax.plot(df["lifetime_trial"], df[plot], label=plot)
+        ax.plot(df["multisession_trial"], df[plot], label=plot)
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
     else:
         print("Unknown plot element: {}".format(plot))
