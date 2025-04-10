@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_foraging_multisession(
+def plot_foraging_multisession(  # NOQA C901
     multisession_df, plot_list=["side_bias", "lickspout_position"]
 ):
     """
@@ -99,9 +99,7 @@ def plot_foraging_multisession(
         ax[0].set_xlim(xmin, xmax)
         plt.draw()
 
-    kpid = fig.canvas.mpl_connect(
-        "key_press_event", on_key_press
-    )  # noqa: F841
+    fig.canvas.mpl_connect("key_press_event", on_key_press)  # noqa: F841
 
 
 def plot_foraging_behavior(ax, df):
@@ -111,7 +109,6 @@ def plot_foraging_behavior(ax, df):
         [np.nan if x == 2 else x for x in df["animal_response"].values]
     )
     reward_history = df["earned_reward"].values
-    p_reward = [df["reward_probabilityL"], df["reward_probabilityR"]]
     autowater_offered = df[["auto_waterL", "auto_waterR"]].any(axis=1)
     manual_water = df["extra_reward"].values
 
@@ -342,7 +339,7 @@ def plot_foraging_multisession_inner(ax, plot, df):
             "b",
             label="x",
         )
-        ax.set_ylabel("$\Delta$ lickspout")
+        ax.set_ylabel("$\\Delta$ lickspout")
     elif plot in df:
         ax.plot(df["multisession_trial"], df[plot], label=plot)
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
@@ -354,7 +351,7 @@ def plot_foraging_multisession_inner(ax, plot, df):
 
 def find_multiday_breaks(df):
     """
-    Adds a column that annotates if the gap between sessions is greater than a day
+    annotates if the gap between sessions is greater than a day
     """
     dates = [
         datetime.strptime(x.split("_")[1], "%Y-%m-%d")
