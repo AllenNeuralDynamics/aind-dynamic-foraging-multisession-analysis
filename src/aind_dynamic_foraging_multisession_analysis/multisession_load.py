@@ -1,16 +1,17 @@
-import aind_dynamic_foraging_basic_analysis.licks.annotation as a
-import aind_dynamic_foraging_basic_analysis.metrics.trial_metrics as tm
-import numpy as np
-import pandas as pd
-from aind_dynamic_foraging_data_utils import nwb_utils as nu
-
 """
+Tools for aggregation of multiple sessions into a dataframe
 
 import aind_dynamic_foraging_multisession_analysis.load as load
 NWB_FILES = glob.glob(DATA_DIR + 'behavior_<mouse_id>_**.nwb')
 nwbs, df = load.make_multisession_trials_df(NWB_FILES)
 
 """
+
+import numpy as np
+import pandas as pd
+from aind_dynamic_foraging_data_utils import nwb_utils as nu
+import aind_dynamic_foraging_basic_analysis.licks.annotation as a
+import aind_dynamic_foraging_basic_analysis.metrics.trial_metrics as tm
 
 
 def make_multisession_trials_df(nwb_list):

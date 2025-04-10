@@ -1,3 +1,8 @@
+"""
+Plotting tools for multisession data
+
+"""
+
 from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt
