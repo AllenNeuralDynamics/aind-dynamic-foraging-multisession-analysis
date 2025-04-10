@@ -13,25 +13,15 @@ nwbs, df = load.make_multisession_trials_df(NWB_FILES)
 """
 
 
-# TODO, move this?
-# TODO, compute bias?
-def add_side_bias(nwb):
-    if "side_bias" in nwb.df_trials:
-        return nwb.df_trials
-    nwb.df_trials["side_bias"] = [np.nan] * len(nwb.df_trials)
-    nwb.df_trials["side_bias_confidence_interval"] = [[np.nan, np.nan]] * len(
-        nwb.df_trials
-    )
-    return nwb.df_trials
-
-
 def make_multisession_trials_df(nwb_list):
     """
-    takes a list of NWBs
-    loads each NWB file
-    makes trials table
-    adds metrics
-    makes aggregate trials table
+    Builds a dataframe of trials concatenated across multiple sessions
+    nwb_list, a list of NWBs to concatenate. Can either be paths to the files
+            or NWB files themselves
+
+    The multisession dataframe will contain the union of the columns in the
+    individual nwb.df_trials. The rows will be sorted by the session date,
+    and then trial number within each session
     """
     nwbs = []
     crash_list = []
@@ -59,3 +49,31 @@ def make_multisession_trials_df(nwb_list):
     df = pd.concat([x.df_trials for x in nwbs])
 
     return nwbs, df
+
+
+def add_side_bias(nwb, compute=True):
+    """
+    Adds a column "side_bias" and "side_bias_confidence_interval"
+    to the nwb.df_trials, if it does not already exist
+
+    compute (bool) whether to compute the side bias or add NaNs
+    """
+
+    if not hasattr(nwb, "df_trials"):
+        print("No df_trials")
+        return
+
+    if "side_bias" in nwb.df_trials:
+        return nwb.df_trials.copy()
+
+    # Whether to compute the bias or not
+    df_trials = nwb.df_trials.copy()
+    if compute:
+        df_trials = tm.compute_side_bias(nwb)
+    else:
+        df_trials["side_bias"] = [np.nan] * len(df_trials)
+        df_trials["side_bias_confidence_interval"] = [[np.nan, np.nan]] * len(
+            df_trials
+        )
+
+    return df_trials
