@@ -10,6 +10,10 @@ def plot_foraging_multisession(  # NOQA C901
     """
     Takes a dataframe of the aggregate for all sessions from this animal
 
+    plot_list is a list of columns in the dataframe to plot
+        can additionally pass a list which include a list of columns
+        that will all be plotted together
+        example: plot_list = ['side_bias',['response_rate','reward_rate']]
     """
 
     # Ensure dataframe is sorted by session then trial
@@ -31,6 +35,7 @@ def plot_foraging_multisession(  # NOQA C901
     # Plot each element
     for index, plot in enumerate(plot_list):
         if isinstance(plot, list):
+            # We have a list to plot together
             for inner_plot in plot:
                 plot_foraging_multisession_inner(ax[index + 1], inner_plot, df)
         else:
@@ -103,6 +108,11 @@ def plot_foraging_multisession(  # NOQA C901
 
 
 def plot_foraging_behavior(ax, df):
+    """
+    Plot basic behavior information including licks and rewards
+    ax, the axis to plot on
+    df, the multisession dataframe
+    """
 
     # Grab data
     choice_history = np.array(
@@ -185,7 +195,7 @@ def plot_foraging_behavior(ax, df):
         alpha=1,
         linewidth=1,
         color="gray",
-    )
+    )  # TODO what is going on here?
 
     # Ignored trials
     xx = np.nonzero(ignored & ~autowater_ignored)[0] + 1
@@ -281,6 +291,13 @@ def plot_foraging_behavior(ax, df):
 
 
 def plot_foraging_multisession_inner(ax, plot, df):
+    """
+    plot just one metric
+    ax, axis to plot on
+    plot, metric to plot, must be a column of df
+    df, multisession dataframe
+    """
+    # Set up axis
     ax.set_ylabel(plot)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
