@@ -1,11 +1,7 @@
-import os
 from datetime import datetime, timedelta
 
-import aind_dynamic_foraging_basic_analysis.metrics.trial_metrics as tm
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from aind_dynamic_foraging_data_utils import nwb_utils as nu
 
 
 def plot_foraging_multisession(

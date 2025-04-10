@@ -1,6 +1,3 @@
-import os
-from datetime import datetime, timedelta
-
 import aind_dynamic_foraging_basic_analysis.licks.annotation as a
 import aind_dynamic_foraging_basic_analysis.metrics.trial_metrics as tm
 import numpy as np
