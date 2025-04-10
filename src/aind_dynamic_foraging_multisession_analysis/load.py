@@ -39,13 +39,13 @@ def make_multisession_trials_df(nwb_list):
     nwbs = []
     crash_list = []
     for n in nwb_list:
+        print(n)
         try:
             nwb = nu.load_nwb_from_filename(n)
             nwb.df_trials = nu.create_df_trials(nwb, verbose=False)
             nwb.df_events = nu.create_events_df(nwb, verbose=False)
             nwb.df_licks = a.annotate_licks(nwb)
             nwb.df_trials = tm.compute_trial_metrics(nwb)
-            nwb.df_trials = tm.add_intertrial_licking(nwb)
             nwb.df_trials = add_side_bias(nwb)
             nwbs.append(nwb)
         except Exception as e:
