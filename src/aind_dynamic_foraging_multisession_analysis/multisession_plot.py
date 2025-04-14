@@ -10,7 +10,9 @@ import numpy as np
 
 
 def plot_foraging_multisession(  # NOQA C901
-    multisession_df, plot_list=["side_bias", "lickspout_position"]
+    multisession_df,
+    plot_list=["side_bias", "lickspout_position"],
+    interactive=True,
 ):
     """
     Takes a dataframe of the aggregate for all sessions from this animal
@@ -19,6 +21,7 @@ def plot_foraging_multisession(  # NOQA C901
         can additionally pass a list which include a list of columns
         that will all be plotted together
         example: plot_list = ['side_bias',['response_rate','reward_rate']]
+    interactive (bool), if true, make the plot interactive
     """
 
     # Ensure dataframe is sorted by session then trial
@@ -74,10 +77,13 @@ def plot_foraging_multisession(  # NOQA C901
     ax[-1].set_xlim(
         df["multisession_trial"].values[0], df["multisession_trial"].values[-1]
     )
-    plt.suptitle(
-        df["ses_idx"].values[0].split("_")[0]
-        + " use arrow keys in scroll or zoom in/out, use h to reset"
-    )
+    if interactive:
+        plt.suptitle(
+            df["ses_idx"].values[0].split("_")[0]
+            + " use arrow keys in scroll or zoom in/out, use h to reset"
+        )
+    else:
+        plt.suptitle(df["ses_idx"].values[0].split("_")[0])
     plt.tight_layout()
 
     # Add interactive scrolling
@@ -109,7 +115,8 @@ def plot_foraging_multisession(  # NOQA C901
         ax[0].set_xlim(xmin, xmax)
         plt.draw()
 
-    fig.canvas.mpl_connect("key_press_event", on_key_press)  # noqa: F841
+    if interactive:
+        fig.canvas.mpl_connect("key_press_event", on_key_press)  # noqa: F841
 
 
 def plot_foraging_behavior(ax, df):
@@ -200,7 +207,7 @@ def plot_foraging_behavior(ax, df):
         alpha=1,
         linewidth=1,
         color="gray",
-    )  # TODO what is going on here?
+    )
 
     # Ignored trials
     xx = np.nonzero(ignored & ~autowater_ignored)[0] + 1
@@ -223,7 +230,7 @@ def plot_foraging_behavior(ax, df):
     xx_left = xx[yy_temp < 0.5]
     ax.vlines(
         xx_right,
-        yy_right,
+        yy_right + 0.05,
         yy_right + 0.1,
         alpha=1,
         linewidth=1,
@@ -233,7 +240,7 @@ def plot_foraging_behavior(ax, df):
     ax.vlines(
         xx_left,
         yy_left - 0.1,
-        yy_left,
+        yy_left - 0.05,
         alpha=1,
         linewidth=1,
         color="deepskyblue",
@@ -259,7 +266,7 @@ def plot_foraging_behavior(ax, df):
     xx_left = xx[yy_temp < 0.5]
     ax.vlines(
         xx_right,
-        yy_right,
+        yy_right + 0.05,
         yy_right + 0.1,
         alpha=1,
         linewidth=1,
@@ -269,7 +276,7 @@ def plot_foraging_behavior(ax, df):
     ax.vlines(
         xx_left,
         yy_left - 0.1,
-        yy_left,
+        yy_left - 0.05,
         alpha=1,
         linewidth=1,
         color="royalblue",
