@@ -234,7 +234,7 @@ def plot_foraging_behavior(ax, df):
         yy_right + 0.1,
         alpha=1,
         linewidth=1,
-        color="deepskyblue",
+        color="cyan",
         label="Autowater collected",
     )
     ax.vlines(
@@ -243,7 +243,7 @@ def plot_foraging_behavior(ax, df):
         yy_left - 0.05,
         alpha=1,
         linewidth=1,
-        color="deepskyblue",
+        color="cyan",
     )
     # Also highlight the autowater offered but still ignored
     xx = np.nonzero(manual_water_ignored)[0] + 1
@@ -251,7 +251,7 @@ def plot_foraging_behavior(ax, df):
     ax.plot(
         *(xx, yy),
         "x",
-        color="deepskyblue",
+        color="cyan",
         markersize=3,
         markeredgewidth=0.5,
         label="Manual water ignored",

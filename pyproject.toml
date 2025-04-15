@@ -18,7 +18,7 @@ dynamic = ["version"]
 
 dependencies = [
     'aind-dynamic-foraging-data-utils',
-    'aind-dynamic-foraging-basic-analysis',
+    'aind-dynamic-foraging-basic-analysis>=0.3.13',
 ]
 
 [project.optional-dependencies]
