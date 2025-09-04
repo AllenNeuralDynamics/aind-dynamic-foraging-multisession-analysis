@@ -17,7 +17,7 @@ readme = "README.md"
 dynamic = ["version"]
 
 dependencies = [
-    'aind-dynamic-foraging-data-utils>=0.1.27',
+    'aind-dynamic-foraging-data-utils>=0.1.25',
     'aind-dynamic-foraging-basic-analysis>=0.3.13',
 ]
 
