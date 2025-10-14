@@ -13,6 +13,7 @@ def plot_foraging_multisession(  # NOQA C901
     multisession_df,
     plot_list=["side_bias", "lickspout_position"],
     interactive=True,
+    missing=[],
 ):
     """
     Takes a dataframe of the aggregate for all sessions from this animal
@@ -22,6 +23,7 @@ def plot_foraging_multisession(  # NOQA C901
         that will all be plotted together
         example: plot_list = ['side_bias',['response_rate','reward_rate']]
     interactive (bool), if true, make the plot interactive
+    missing (list), a list of missing sessions to mark on the plot
     """
 
     # Ensure dataframe is sorted by session then trial
@@ -61,6 +63,19 @@ def plot_foraging_multisession(  # NOQA C901
                 a.axvline(x, color="gray", alpha=1, linestyle="--")
             else:
                 a.axvline(x, color="gray", alpha=0.25, linestyle="--")
+
+    if len(missing) > 0:
+        missing_breaks = find_missing_day_timepoints(df, missing)
+        ylims = ax[-1].get_ylim()
+        diff = (ylims[1] - ylims[0]) * 0.05
+        for b in missing_breaks:
+            print(b)
+            for a in ax:
+                a.axvline(b - 5, color="r", alpha=1, linestyle="--")
+            ax[-1].plot(
+                b - 5, ylims[0] - diff, "r^", markersize=10, clip_on=False
+            )
+        ax[-1].set_ylim(ylims)
 
     # Determine xtick positions and labels
     ticks = list(df.query("trial == 0")["multisession_trial"].values) + [
@@ -397,3 +412,15 @@ def find_multiday_breaks(df):
     time_delta.append(False)
 
     return time_delta
+
+
+def find_missing_day_timepoints(df, missing):
+    df = df.copy()
+    df["session_date"] = [x.split("_")[1] for x in df["ses_idx"]]
+    missing_timepoints = []
+    for m in missing:
+        m_date = m.split("_")[2]
+        filtered = df[df["session_date"] > m_date]
+        if len(filtered) > 0:
+            missing_timepoints.append(filtered.iloc[0]["multisession_trial"])
+    return missing_timepoints
