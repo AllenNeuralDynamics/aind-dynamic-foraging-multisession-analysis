@@ -415,6 +415,10 @@ def find_multiday_breaks(df):
 
 
 def find_missing_day_timepoints(df, missing):
+    """
+    returns the x-axis index (multisession_trial number) where missing sessions
+    would be plotted
+    """
     df = df.copy()
     df["session_date"] = [x.split("_")[1] for x in df["ses_idx"]]
     missing_timepoints = []
