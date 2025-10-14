@@ -28,6 +28,7 @@ def plot_foraging_multisession(  # NOQA C901
     df = multisession_df.copy()
     df = df.sort_values(by=["ses_idx", "trial"])
     df["multisession_trial"] = df.reset_index().index
+    num_sessions = len(df["ses_idx"].unique())
 
     # Set up figure
     fig, ax = plt.subplots(
@@ -73,6 +74,8 @@ def plot_foraging_multisession(  # NOQA C901
 
     # Add ticks to the bottom plot
     ax[-1].set_xticks(ticks, labels)
+    if num_sessions > 20:
+        ax[-1].tick_params(axis="x", labelrotation=90)
     ax[-1].set_xlabel("Session")
     ax[-1].set_xlim(
         df["multisession_trial"].values[0], df["multisession_trial"].values[-1]
@@ -117,6 +120,8 @@ def plot_foraging_multisession(  # NOQA C901
 
     if interactive:
         fig.canvas.mpl_connect("key_press_event", on_key_press)  # noqa: F841
+
+    return fig, ax
 
 
 def plot_foraging_behavior(ax, df):
