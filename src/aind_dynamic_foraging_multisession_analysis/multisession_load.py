@@ -14,7 +14,7 @@ import aind_dynamic_foraging_basic_analysis.licks.annotation as a
 import aind_dynamic_foraging_basic_analysis.metrics.trial_metrics as tm
 
 
-def make_multisession_trials_df(nwb_list):
+def make_multisession_trials_df(nwb_list, allow_duplicates=True):
     """
     Builds a dataframe of trials concatenated across multiple sessions
     nwb_list, a list of NWBs to concatenate. Can either be paths to the files
@@ -24,12 +24,17 @@ def make_multisession_trials_df(nwb_list):
     individual nwb.df_trials. The rows will be sorted by the session date,
     and then trial number within each session
     """
+    unique_sessions = set()
     nwbs = []
     crash_list = []
     for n in nwb_list:
         print(n)
         try:
             nwb = nu.load_nwb_from_filename(n)
+            if (not allow_duplicates) and (nwb.session_id in unique_sessions):
+                continue
+            else:
+                unique_sessions.add(nwb.session_id)
             nwb.df_trials = nu.create_df_trials(nwb, verbose=False)
             nwb.df_events = nu.create_df_events(nwb, verbose=False)
             nwb.df_licks = a.annotate_licks(nwb)
