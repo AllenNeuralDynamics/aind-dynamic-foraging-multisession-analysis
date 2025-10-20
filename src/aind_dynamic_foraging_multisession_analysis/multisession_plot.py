@@ -37,6 +37,7 @@ def plot_foraging_multisession(  # NOQA C901
         len(plot_list) + 1,
         1,
         figsize=(14, 2 * (1 + len(plot_list))),
+        height_ratios=[2] + [1] * (len(plot_list)),
         sharex=True,
     )
 
@@ -152,6 +153,7 @@ def plot_foraging_behavior(ax, df):
     reward_history = df["earned_reward"].values
     autowater_offered = df[["auto_waterL", "auto_waterR"]].any(axis=1)
     manual_water = df["extra_reward"].values
+    ignore_mark = 1.18
 
     # Compute things
     ignored = np.isnan(choice_history)
@@ -171,8 +173,8 @@ def plot_foraging_behavior(ax, df):
     xx_left = xx[yy_temp < 0.5]
     ax.vlines(
         xx_right,
-        yy_right + 0.05,
-        yy_right + 0.1,
+        yy_right + 0.06,
+        yy_right + 0.11,
         alpha=1,
         linewidth=1,
         color="gray",
@@ -180,8 +182,8 @@ def plot_foraging_behavior(ax, df):
     )
     ax.vlines(
         xx_left,
-        yy_left - 0.1,
-        yy_left - 0.05,
+        yy_left - 0.11,
+        yy_left - 0.06,
         alpha=1,
         linewidth=1,
         color="gray",
@@ -196,8 +198,8 @@ def plot_foraging_behavior(ax, df):
     xx_left = xx[yy_temp < 0.5]
     ax.vlines(
         xx_right,
-        yy_right + 0.05,
-        yy_right + 0.1,
+        yy_right + 0.06,
+        yy_right + 0.11,
         alpha=1,
         linewidth=1,
         color="black",
@@ -205,24 +207,24 @@ def plot_foraging_behavior(ax, df):
     )
     ax.vlines(
         xx_right,
-        yy_right + 0,
-        yy_right + 0.05,
+        yy_right + 0.01,
+        yy_right + 0.06,
         alpha=1,
         linewidth=1,
         color="gray",
     )
     ax.vlines(
         xx_left,
-        yy_left - 0.1,
-        yy_left - 0.05,
+        yy_left - 0.11,
+        yy_left - 0.06,
         alpha=1,
         linewidth=1,
         color="black",
     )
     ax.vlines(
         xx_left,
-        yy_left - 0.05,
-        yy_left,
+        yy_left - 0.06,
+        yy_left - 0.01,
         alpha=1,
         linewidth=1,
         color="gray",
@@ -230,13 +232,14 @@ def plot_foraging_behavior(ax, df):
 
     # Ignored trials
     xx = np.nonzero(ignored & ~autowater_ignored)[0] + 1
-    yy = [0.99] * sum(ignored & ~autowater_ignored)
+    yy = [ignore_mark] * sum(ignored & ~autowater_ignored)
     ax.plot(
         *(xx, yy),
         "x",
-        color="red",
-        markersize=3,
+        color="darkviolet",
+        markersize=5,
         markeredgewidth=0.5,
+        alpha=1,
         label="Ignored",
     )
 
@@ -249,8 +252,8 @@ def plot_foraging_behavior(ax, df):
     xx_left = xx[yy_temp < 0.5]
     ax.vlines(
         xx_right,
-        yy_right + 0.05,
-        yy_right + 0.1,
+        yy_right + 0.06,
+        yy_right + 0.11,
         alpha=1,
         linewidth=1,
         color="cyan",
@@ -258,15 +261,15 @@ def plot_foraging_behavior(ax, df):
     )
     ax.vlines(
         xx_left,
-        yy_left - 0.1,
-        yy_left - 0.05,
+        yy_left - 0.11,
+        yy_left - 0.06,
         alpha=1,
         linewidth=1,
         color="cyan",
     )
     # Also highlight the autowater offered but still ignored
     xx = np.nonzero(manual_water_ignored)[0] + 1
-    yy = [1.01] * sum(manual_water_ignored)
+    yy = [ignore_mark] * sum(manual_water_ignored)
     ax.plot(
         *(xx, yy),
         "x",
@@ -285,8 +288,8 @@ def plot_foraging_behavior(ax, df):
     xx_left = xx[yy_temp < 0.5]
     ax.vlines(
         xx_right,
-        yy_right + 0.05,
-        yy_right + 0.1,
+        yy_right + 0.06,
+        yy_right + 0.11,
         alpha=1,
         linewidth=1,
         color="royalblue",
@@ -294,8 +297,8 @@ def plot_foraging_behavior(ax, df):
     )
     ax.vlines(
         xx_left,
-        yy_left - 0.1,
-        yy_left - 0.05,
+        yy_left - 0.11,
+        yy_left - 0.06,
         alpha=1,
         linewidth=1,
         color="royalblue",
@@ -303,7 +306,7 @@ def plot_foraging_behavior(ax, df):
 
     # Also highlight the autowater offered but still ignored
     xx = np.nonzero(autowater_ignored)[0] + 1
-    yy = [1.01] * sum(autowater_ignored)
+    yy = [ignore_mark] * sum(autowater_ignored)
     ax.plot(
         *(xx, yy),
         "x",
@@ -313,12 +316,38 @@ def plot_foraging_behavior(ax, df):
         label="Autowater ignored",
     )
 
-    ax.set_yticks([0.875, 0.925, 1, 1.075, 1.125])
-    ax.set_yticklabels(
-        ["L Reward", "L Choice", "Ignored", "R Choice", "R Reward"]
+    go_cue_times_doubled = np.repeat(df["multisession_trial"].values, 2)[1:]
+
+    pR = df["reward_probabilityR"] / 20
+    pR = 1 + np.repeat(pR, 2)[:-1]
+    ax.fill_between(go_cue_times_doubled, 1, pR, color="r", alpha=0.4)
+
+    pL = df["reward_probabilityL"] / 20
+    pL = 1 - np.repeat(pL, 2)[:-1]
+
+    ax.fill_between(go_cue_times_doubled, pL, 1, color="b", alpha=0.4)
+
+    ax.set_yticks(
+        [0.870, 0.92, 1 - 1 / 40, 1 + 1 / 40, 1.08, 1.13, ignore_mark]
     )
+    ax.set_yticklabels(
+        [
+            "L Reward",
+            "L Choice",
+            "p(L)",
+            "p(R)",
+            "R Choice",
+            "R Reward",
+            "Ignored",
+        ]
+    )
+    ytickcolors = ["b", "b", "royalblue", "indianred", "r", "r", "darkviolet"]
+    for tick, color in zip(ax.get_yticklabels(), ytickcolors):
+        tick.set_color(color)
+
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    ax.set_ylim(0.83, 1.2)
 
 
 def plot_foraging_multisession_inner(ax, plot, df):
@@ -346,19 +375,21 @@ def plot_foraging_multisession_inner(ax, plot, df):
         ax.set_ylim(-1, 1)
         ax.set_ylabel("Side Bias")
     elif plot == "reward_probability":
-        ax.plot(
-            df["multisession_trial"],
-            df["reward_probabilityL"],
-            color="b",
-            label="L",
-        )
-        ax.plot(
-            df["multisession_trial"],
-            df["reward_probabilityR"],
-            color="r",
-            label="R",
-        )
         ax.set_ylabel("Reward Probability")
+        go_cue_times_doubled = np.repeat(df["multisession_trial"].values, 2)[
+            1:
+        ]
+
+        pR = df["reward_probabilityR"]
+        pR = np.repeat(pR, 2)[:-1]
+        ax.fill_between(go_cue_times_doubled, 0, pR, color="r", alpha=0.4)
+
+        pL = df["reward_probabilityL"]
+        pL = np.repeat(pL, 2)[:-1]
+
+        ax.fill_between(go_cue_times_doubled, -pL, 0, color="b", alpha=0.4)
+        ax.set_ylim(-1, 1)
+
     elif plot == "lickspout_position":
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
         ax.plot(
