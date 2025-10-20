@@ -40,6 +40,8 @@ def plot_foraging_multisession(  # NOQA C901
         height_ratios=[2] + [1] * (len(plot_list)),
         sharex=True,
     )
+    if len(plot_list) == 0:
+        ax = [ax]
 
     # Plot basic behavior
     plot_foraging_behavior(ax[0], df)
@@ -74,6 +76,16 @@ def plot_foraging_multisession(  # NOQA C901
                 a.axvline(b - 5, color="r", alpha=1, linestyle="--")
             ax[-1].plot(
                 b - 5, ylims[0] - diff, "r^", markersize=10, clip_on=False
+            )
+            ax[-1].text(
+                b - 5,
+                ylims[0] - diff * 3,
+                "missing",
+                color="r",
+                clip_on=False,
+                rotation="vertical",
+                horizontalalignment="center",
+                verticalalignment="top",
             )
         ax[-1].set_ylim(ylims)
 
@@ -232,14 +244,15 @@ def plot_foraging_behavior(ax, df):
 
     # Ignored trials
     xx = np.nonzero(ignored & ~autowater_ignored)[0] + 1
-    yy = [ignore_mark] * sum(ignored & ~autowater_ignored)
-    ax.plot(
-        *(xx, yy),
-        "x",
-        color="darkviolet",
-        markersize=5,
-        markeredgewidth=0.5,
+    yy_bottom = [ignore_mark - 0.01] * sum(ignored & ~autowater_ignored)
+    yy_top = [ignore_mark + 0.01] * sum(ignored & ~autowater_ignored)
+    ax.vlines(
+        xx,
+        yy_bottom,
+        yy_top,
         alpha=1,
+        linewidth=1,
+        color="darkviolet",
         label="Ignored",
     )
 
@@ -269,13 +282,15 @@ def plot_foraging_behavior(ax, df):
     )
     # Also highlight the autowater offered but still ignored
     xx = np.nonzero(manual_water_ignored)[0] + 1
-    yy = [ignore_mark] * sum(manual_water_ignored)
-    ax.plot(
-        *(xx, yy),
-        "x",
+    yy_bottom = [ignore_mark - 0.01] * sum(manual_water_ignored)
+    yy_top = [ignore_mark + 0.01] * sum(manual_water_ignored)
+    ax.vlines(
+        xx,
+        yy_bottom,
+        yy_top,
+        alpha=1,
+        linewidth=1,
         color="cyan",
-        markersize=3,
-        markeredgewidth=0.5,
         label="Manual water ignored",
     )
 
@@ -306,13 +321,15 @@ def plot_foraging_behavior(ax, df):
 
     # Also highlight the autowater offered but still ignored
     xx = np.nonzero(autowater_ignored)[0] + 1
-    yy = [ignore_mark] * sum(autowater_ignored)
-    ax.plot(
-        *(xx, yy),
-        "x",
+    yy_bottom = [ignore_mark - 0.01] * sum(autowater_ignored)
+    yy_top = [ignore_mark + 0.01] * sum(autowater_ignored)
+    ax.vlines(
+        xx,
+        yy_bottom,
+        yy_top,
+        alpha=1,
+        linewidth=1,
         color="royalblue",
-        markersize=3,
-        markeredgewidth=0.5,
         label="Autowater ignored",
     )
 
