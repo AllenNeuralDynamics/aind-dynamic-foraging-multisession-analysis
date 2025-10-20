@@ -52,6 +52,8 @@ def make_multisession_trials_df(nwb_list, allow_duplicates=True):
         print("\n".join(crash_list))
 
     # Make a dataframe of trials
+    for nwb in nwbs:
+        nwb.df_trials["ses_idx"] = [nwb.session_id[9:]] * len(nwb.df_trials)
     df = pd.concat([x.df_trials for x in nwbs])
 
     return nwbs, df
