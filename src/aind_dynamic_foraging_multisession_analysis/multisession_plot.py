@@ -69,7 +69,6 @@ def plot_foraging_multisession(  # NOQA C901
         ylims = ax[-1].get_ylim()
         diff = (ylims[1] - ylims[0]) * 0.05
         for b in missing_breaks:
-            print(b)
             for a in ax:
                 a.axvline(b - 5, color="r", alpha=1, linestyle="--")
             ax[-1].plot(
