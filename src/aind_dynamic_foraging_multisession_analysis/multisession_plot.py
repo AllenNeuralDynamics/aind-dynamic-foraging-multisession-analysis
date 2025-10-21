@@ -411,7 +411,6 @@ def plot_foraging_multisession_inner(ax, plot, df):
     elif plot == "lickspout_position":
 
         # Flag newscale sessions and change units
-        threshold = 1000
         temp = df.groupby("ses_idx")["lickspout_position_z"].mean()
         newscale_stage_sessions = temp[temp > 100].index.values
         newscales = []
