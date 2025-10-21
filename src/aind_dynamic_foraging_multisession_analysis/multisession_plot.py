@@ -482,7 +482,12 @@ def plot_foraging_multisession_inner(ax, plot, df):
         diff = (ylims[1] - ylims[0]) * 0.05
         for pairs in newscales:
             ax.hlines(
-                ylims[1], pairs[0], pairs[1], color="darkgreen", linewidth=4
+                ylims[1],
+                pairs[0],
+                pairs[1],
+                color="darkgreen",
+                linewidth=4,
+                alpha=0.5,
             )
             ax.text(
                 np.mean(pairs),
@@ -493,6 +498,7 @@ def plot_foraging_multisession_inner(ax, plot, df):
                 rotation="vertical",
                 horizontalalignment="center",
                 verticalalignment="top",
+                alpha=0.5,
             )
 
     elif plot in df:
