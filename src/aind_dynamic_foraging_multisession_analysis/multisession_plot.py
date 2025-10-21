@@ -30,6 +30,7 @@ def plot_foraging_multisession(  # NOQA C901
     df = multisession_df.copy()
     df = df.sort_values(by=["ses_idx", "trial"])
     df["multisession_trial"] = df.reset_index().index
+    df = df.reset_index(drop=True)
     num_sessions = len(df["ses_idx"].unique())
 
     # Set up figure
@@ -408,34 +409,97 @@ def plot_foraging_multisession_inner(ax, plot, df):
         ax.set_ylim(-1, 1)
 
     elif plot == "lickspout_position":
+
+        # Flag newscale sessions and change units
+        temp = df.groupby("ses_idx")["lickspout_position_z"].mean()
+        newscale_stage_sessions = temp[temp > 100].index.values
+        newscales = []
+        for session in newscale_stage_sessions:
+            df.loc[df["ses_idx"] == session, "lickspout_position_z"] = (
+                df.loc[df["ses_idx"] == session, "lickspout_position_z"] / 1000
+            )
+            df.loc[df["ses_idx"] == session, "lickspout_position_y1"] = (
+                df.loc[df["ses_idx"] == session, "lickspout_position_y1"]
+                / 1000
+            )
+            df.loc[df["ses_idx"] == session, "lickspout_position_y2"] = (
+                df.loc[df["ses_idx"] == session, "lickspout_position_y2"]
+                / 1000
+            )
+            df.loc[df["ses_idx"] == session, "lickspout_position_x"] = (
+                df.loc[df["ses_idx"] == session, "lickspout_position_x"] / 1000
+            )
+            temp = df[df["ses_idx"] == session]
+            start = temp.index.values[0]
+            end = temp.index.values[-1]
+            newscales.append([start, end])
+
+        # Compute delta lickspout
+        df["delta_z"] = (
+            df["lickspout_position_z"] - df["lickspout_position_z"].values[0]
+        )
+        df["delta_y1"] = (
+            df["lickspout_position_y1"] - df["lickspout_position_y1"].values[0]
+        )
+        df["delta_y2"] = (
+            df["lickspout_position_y2"] - df["lickspout_position_y2"].values[0]
+        )
+        df["delta_x"] = (
+            df["lickspout_position_x"] - df["lickspout_position_x"].values[0]
+        )
+
+        # plot
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
         ax.plot(
             df["multisession_trial"],
-            df["lickspout_position_z"] - df["lickspout_position_z"].values[0],
+            df["delta_z"],
             "k",
             label="z",
         )
         ax.plot(
             df["multisession_trial"],
-            df["lickspout_position_y1"]
-            - df["lickspout_position_y1"].values[0],
+            df["delta_y1"],
             "r",
             label="y1",
         )
         ax.plot(
             df["multisession_trial"],
-            df["lickspout_position_y2"]
-            - df["lickspout_position_y2"].values[0],
+            df["delta_y2"],
             "m",
             label="y2",
         )
         ax.plot(
             df["multisession_trial"],
-            df["lickspout_position_x"] - df["lickspout_position_x"].values[0],
+            df["delta_x"],
             "b",
             label="x",
         )
-        ax.set_ylabel("$\\Delta$ lickspout")
+        ax.set_ylabel("$\\Delta$ lickspout ($\\mu$m)")
+
+        # Annotate newscale sessions
+        ylims = ax.get_ylim()
+        diff = (ylims[1] - ylims[0]) * 0.05
+        for pairs in newscales:
+            ax.hlines(
+                ylims[1],
+                pairs[0],
+                pairs[1],
+                color="darkgreen",
+                linewidth=4,
+                alpha=0.5,
+            )
+            ax.text(
+                np.mean(pairs),
+                ylims[1] - diff,
+                "newscale",
+                color="darkgreen",
+                clip_on=False,
+                rotation="vertical",
+                horizontalalignment="center",
+                verticalalignment="top",
+                alpha=0.5,
+            )
+
     elif plot in df:
         ax.plot(df["multisession_trial"], df[plot], label=plot)
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
