@@ -410,6 +410,13 @@ def plot_foraging_multisession_inner(ax, plot, df):
 
     elif plot == "lickspout_position":
         threshold = 1000
+        temp = df.groupby('ses_idx')['lickspout_position_z'].mean()
+        newscale_stage_sessions = temp[temp>100].index.values
+        for session in newscale_stage_sessions:
+            df.loc[df['ses_idx'] == session,'lickspout_position_z'] = df.loc[df['ses_idx'] == session,'lickspout_position_z']/1000
+            df.loc[df['ses_idx'] == session,'lickspout_position_y1'] = df.loc[df['ses_idx'] == session,'lickspout_position_y1']/1000
+            df.loc[df['ses_idx'] == session,'lickspout_position_y2'] = df.loc[df['ses_idx'] == session,'lickspout_position_y2']/1000
+            df.loc[df['ses_idx'] == session,'lickspout_position_x'] = df.loc[df['ses_idx'] == session,'lickspout_position_x']/1000
         df["delta_z"] = (
             df["lickspout_position_z"] - df["lickspout_position_z"].values[0]
         )
@@ -422,43 +429,43 @@ def plot_foraging_multisession_inner(ax, plot, df):
         df["delta_x"] = (
             df["lickspout_position_x"] - df["lickspout_position_x"].values[0]
         )
-        stage_changes_z = df[df["delta_z"].diff().abs() > threshold][
-            "multisession_trial"
-        ].values
-        stage_changes_y1 = df[df["delta_y1"].diff().abs() > threshold][
-            "multisession_trial"
-        ].values
-        stage_changes_y2 = df[df["delta_y2"].diff().abs() > threshold][
-            "multisession_trial"
-        ].values
-        stage_changes_x = df[df["delta_x"].diff().abs() > threshold][
-            "multisession_trial"
-        ].values
-        stage_changes = list(
-            set(
-                np.concatenate(
-                    [
-                        stage_changes_x,
-                        stage_changes_y1,
-                        stage_changes_y2,
-                        stage_changes_z,
-                    ]
-                )
-            )
-        )
-        for change in stage_changes:
-            df.loc[change:, "delta_z"] = (
-                df.loc[change:, "delta_z"] - df.loc[change, "delta_z"]
-            )
-            df.loc[change:, "delta_y1"] = (
-                df.loc[change:, "delta_y1"] - df.loc[change, "delta_y1"]
-            )
-            df.loc[change:, "delta_y2"] = (
-                df.loc[change:, "delta_y2"] - df.loc[change, "delta_y2"]
-            )
-            df.loc[change:, "delta_x"] = (
-                df.loc[change:, "delta_x"] - df.loc[change, "delta_x"]
-            )
+        #stage_changes_z = df[df["delta_z"].diff().abs() > threshold][
+        #    "multisession_trial"
+        #].values
+        #stage_changes_y1 = df[df["delta_y1"].diff().abs() > threshold][
+        #    "multisession_trial"
+        #].values
+        #stage_changes_y2 = df[df["delta_y2"].diff().abs() > threshold][
+        #    "multisession_trial"
+        #].values
+        #stage_changes_x = df[df["delta_x"].diff().abs() > threshold][
+        #    "multisession_trial"
+        #].values
+        #stage_changes = list(
+        #    set(
+        #        np.concatenate(
+        #            [
+        #                stage_changes_x,
+        #                stage_changes_y1,
+        #                stage_changes_y2,
+        #                stage_changes_z,
+        #            ]
+        #        )
+        #    )
+        #)
+        #for change in stage_changes:
+        #    df.loc[change:, "delta_z"] = (
+        #        df.loc[change:, "delta_z"] - df.loc[change, "delta_z"]
+        #    )
+        #    df.loc[change:, "delta_y1"] = (
+        #        df.loc[change:, "delta_y1"] - df.loc[change, "delta_y1"]
+        #    )
+        #    df.loc[change:, "delta_y2"] = (
+        #        df.loc[change:, "delta_y2"] - df.loc[change, "delta_y2"]
+        #    )
+        #    df.loc[change:, "delta_x"] = (
+        #        df.loc[change:, "delta_x"] - df.loc[change, "delta_x"]
+        #    )
 
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
         ax.plot(
@@ -487,27 +494,27 @@ def plot_foraging_multisession_inner(ax, plot, df):
         )
         ax.set_ylabel("$\\Delta$ lickspout")
 
-        ylims = ax.get_ylim()
-        diff = 0
-        for change in stage_changes:
-            ax.axvline(change, color="darkgreen", alpha=1, linestyle="--")
-            ax.plot(
-                change + 0.5,
-                ylims[1] - diff,
-                "v",
-                color="darkgreen",
-                markersize=7.5,
-                clip_on=False,
-            )
-            ax.text(
-                change + 10,
-                ylims[1],
-                "stage change",
-                color="darkgreen",
-                clip_on=False,
-                rotation="horizontal",
-                horizontalalignment="left",
-            )
+        #ylims = ax.get_ylim()
+        #diff = 0
+        #for change in stage_changes:
+        #    ax.axvline(change, color="darkgreen", alpha=1, linestyle="--")
+        #    ax.plot(
+        #        change + 0.5,
+        #        ylims[1] - diff,
+        #        "v",
+        #        color="darkgreen",
+        #        markersize=7.5,
+        #        clip_on=False,
+        #    )
+        #    ax.text(
+        #        change + 10,
+        #        ylims[1],
+        #        "stage change",
+        #        color="darkgreen",
+        #        clip_on=False,
+        #        rotation="horizontal",
+        #        horizontalalignment="left",
+        #    )
 
     elif plot in df:
         ax.plot(df["multisession_trial"], df[plot], label=plot)
