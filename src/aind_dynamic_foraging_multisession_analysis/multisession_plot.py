@@ -99,6 +99,13 @@ def plot_foraging_multisession(  # NOQA C901
         "-".join(x.split("_")[1].split("-")[1:])
         for x in df.query("trial == 0")["ses_idx"].values
     ]
+    if "metadata_string" in df:
+        metadata_labels = [
+            x for x in df.query("trial == 0")["metadata_string"].values
+        ]
+        labels = [
+            r"$\bf{" + x[0] + "}$" + x[1] for x in zip(labels, metadata_labels)
+        ]
 
     # Add ticks to the bottom plot
     ax[-1].set_xticks(ticks, labels)
