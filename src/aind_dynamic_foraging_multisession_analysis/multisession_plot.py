@@ -112,9 +112,9 @@ def plot_foraging_multisession(  # NOQA C901
     if num_sessions > 5:
         ax[-1].tick_params(axis="x", labelrotation=90)
     if num_sessions > 20:
-        ax[-1].tick_params(axis="x", fontsize=9)
+        ax[-1].tick_params(axis="x", labelsize=9)
     if num_sessions > 30:
-        ax[-1].tick_params(axis="x", fontsize=8)
+        ax[-1].tick_params(axis="x", labelsize=8)
     ax[-1].set_xlabel("Session")
     ax[-1].set_xlim(
         df["multisession_trial"].values[0], df["multisession_trial"].values[-1]
