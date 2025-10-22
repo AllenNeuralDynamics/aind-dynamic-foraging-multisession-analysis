@@ -103,7 +103,7 @@ def plot_foraging_multisession(  # NOQA C901
         metadata_labels = [
             x for x in df.query("trial == 0")["metadata_string"].values
         ]
-        labels = [x[0] + "\n" + x[1] for x in zip(labels, metadata_labels)]
+        labels = [x[0] + x[1] for x in zip(labels, metadata_labels)]
 
     # Add ticks to the bottom plot
     ax[-1].set_xticks(ticks, labels)
