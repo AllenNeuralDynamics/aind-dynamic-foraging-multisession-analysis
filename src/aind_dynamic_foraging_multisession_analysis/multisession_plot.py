@@ -357,7 +357,8 @@ def plot_foraging_behavior(ax, df):
     ax.fill_between(go_cue_times_doubled, pL, 1, color="b", alpha=0.4)
 
     # Mark sessions with baiting
-    baiting = df.groupby("ses_idx")["bait_left"].any().index.values
+    baiting = df.groupby("ses_idx")["bait_left"].any()
+    baiting = baiting[baiting].index.values
     baiting_mark = 1.21
     for session in baiting:
         temp = df[df["ses_idx"] == session]
