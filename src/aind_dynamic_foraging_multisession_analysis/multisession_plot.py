@@ -356,8 +356,28 @@ def plot_foraging_behavior(ax, df):
 
     ax.fill_between(go_cue_times_doubled, pL, 1, color="b", alpha=0.4)
 
+    # Mark sessions with baiting
+    baiting = df.groupby("ses_idx")["bait_left"].any().index.values
+    baiting_mark = 1.21
+    for session in baiting:
+        temp = df[df["ses_idx"] == session]
+        start = temp.index.values[0]
+        end = temp.index.values[-1]
+        ax.hlines(
+            baiting_mark, start, end, color="orange", linewidth=4, alpha=0.5
+        )
+
     ax.set_yticks(
-        [0.870, 0.92, 1 - 1 / 40, 1 + 1 / 40, 1.08, 1.13, ignore_mark]
+        [
+            0.870,
+            0.92,
+            1 - 1 / 40,
+            1 + 1 / 40,
+            1.08,
+            1.13,
+            ignore_mark,
+            baiting_mark,
+        ]
     )
     ax.set_yticklabels(
         [
@@ -368,15 +388,25 @@ def plot_foraging_behavior(ax, df):
             "R Choice",
             "R Reward",
             "Ignored",
+            "Baiting",
         ]
     )
-    ytickcolors = ["b", "b", "royalblue", "indianred", "r", "r", "darkviolet"]
+    ytickcolors = [
+        "b",
+        "b",
+        "royalblue",
+        "indianred",
+        "r",
+        "r",
+        "darkviolet",
+        "darkorange",
+    ]
     for tick, color in zip(ax.get_yticklabels(), ytickcolors):
         tick.set_color(color)
 
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_ylim(0.83, 1.2)
+    ax.set_ylim(0.83, baiting_mark + 0.02)
 
 
 def plot_foraging_multisession_inner(ax, plot, df):
