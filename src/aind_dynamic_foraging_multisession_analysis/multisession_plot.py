@@ -513,7 +513,7 @@ def plot_foraging_multisession_inner(ax, plot, df):
             "b",
             label="x",
         )
-        ax.set_ylabel("$\\Delta$ lickspout ($\\mu$m)")
+        ax.set_ylabel("$\\Delta$ lickspout (mm)")
 
         # Annotate newscale sessions
         ylims = ax.get_ylim()
