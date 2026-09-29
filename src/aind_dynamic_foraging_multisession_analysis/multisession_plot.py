@@ -423,11 +423,12 @@ def plot_foraging_multisession_inner(ax, plot, df):
     # otherwise we just plot the metric
     if plot == "side_bias":
         ax.plot(df["multisession_trial"], df["side_bias"], label="bias")
-        lower = [x[0] for x in df["side_bias_confidence_interval"]]
-        upper = [x[1] for x in df["side_bias_confidence_interval"]]
-        ax.fill_between(
-            np.arange(0, len(df)), lower, upper, color="gray", alpha=0.25
-        )
+        if "side_bias_confidence_interval" in df.columns:
+            lower = [x[0] for x in df["side_bias_confidence_interval"]]
+            upper = [x[1] for x in df["side_bias_confidence_interval"]]
+            ax.fill_between(
+                np.arange(0, len(df)), lower, upper, color="gray", alpha=0.25
+            )
         ax.axhline(0, linestyle="--", color="k", alpha=0.25)
         ax.set_ylim(-1, 1)
         ax.set_ylabel("Side Bias")
